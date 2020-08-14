@@ -218,13 +218,11 @@ jobs:
         # CONFIG_PACKAGE_luci-app-wifischedule is not set
         # CONFIG_PACKAGE_luci-app-vsftpd is not set
         # CONFIG_PACKAGE_luci-app-usb-printer is not set
-        # CONFIG_PACKAGE_luci-app-unblockmusic is not set
         # CONFIG_PACKAGE_luci-app-transmission is not set
         # CONFIG_PACKAGE_luci-app-xlnetacc is not set
         # CONFIG_PACKAGE_luci-app-openvpn is not set
         # CONFIG_PACKAGE_luci-app-openvpn-server is not set
         # CONFIG_PACKAGE_luci-app-qbittorrent is not set
-        # CONFIG_PACKAGE_luci-app-unblockneteasemusic-mini is not set
         # CONFIG_PACKAGE_luci-app-vlmcsd is not set
         # CONFIG_PACKAGE_luci-app-accesscontrol is not set
         # CONFIG_PACKAGE_luci-app-autoreboot is not set

@@ -187,27 +187,6 @@ jobs:
         CONFIG_PACKAGE_openssl-util=y
         EOF
         
-        # UPS
-        cat >> .config <<EOF
-        CONFIG_PACKAGE_nut=y
-        CONFIG_NUT_SSL=y
-        CONFIG_NUT_DRIVER_USB=y
-        CONFIG_NUT_DRIVER_SNMP=y
-        CONFIG_NUT_DRIVER_SERIAL=y
-        CONFIG_PACKAGE_nut-avahi-service=y
-        CONFIG_PACKAGE_nut-common=y
-        CONFIG_PACKAGE_nut-driver-usbhid-ups=y
-        CONFIG_PACKAGE_nut-server=y
-        CONFIG_PACKAGE_nut-upsc=y
-        CONFIG_PACKAGE_nut-upscmd=y
-        CONFIG_PACKAGE_nut-upslog=y
-        CONFIG_PACKAGE_nut-upsmon=y
-        CONFIG_PACKAGE_nut-upsmon-sendmail-notify=y
-        CONFIG_PACKAGE_nut-upsrw=y
-        CONFIG_PACKAGE_nut-upssched=y
-        CONFIG_PACKAGE_nut-web-cgi=y
-        EOF
-          
         # 取消编译VMware镜像以及镜像填充 (不要删除被缩进的注释符号):
         cat >> .config <<EOF
         # # CONFIG_TARGET_IMAGES_PAD is not set

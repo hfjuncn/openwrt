@@ -241,7 +241,7 @@ jobs:
         mkdir -p ./artifact/
         find ./bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
         find ./bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
-        echo "::set-env name=FILENAME::$(echo "OpenWrt-firmware-x86-`date -d "+8 hour" +%Y%m%d-%H%M%S`")"
+        echo "FILENAME=$(echo "OpenWrt-firmware-x86-`date -d "+8 hour" +%Y%m%d-%H%M%S`")"  >> $GITHUB_ENV
         mv -f ./.config ./artifact/ && mv -f ./bin/packages/ ./artifact/
         
     - name: 上传固件.

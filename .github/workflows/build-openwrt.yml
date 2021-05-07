@@ -158,6 +158,7 @@ jobs:
         CONFIG_PACKAGE_luci-app-pptp-server=y
         CONFIG_PACKAGE_luci-app-ipsec-vpnd=y
         CONFIG_PACKAGE_luci-app-softethervpn=y
+        CONFIG_PACKAGE_luci-app-zerotier=y
         EOF
         
         # LuCI主题:
@@ -193,7 +194,6 @@ jobs:
         # # CONFIG_VMDK_IMAGES is not set
         # CONFIG_PACKAGE_coremark is not set
         # CONFIG_PACKAGE_luci-app-docker is not set
-        # CONFIG_PACKAGE_luci-app-zerotier is not set
         # CONFIG_PACKAGE_luci-app-wifischedule is not set
         # CONFIG_PACKAGE_luci-app-vsftpd is not set
         # CONFIG_PACKAGE_luci-app-usb-printer is not set

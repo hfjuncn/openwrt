@@ -35,12 +35,6 @@ jobs:
         REPO_BRANCH: master
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
-    - name: 克隆增强功能源代码
-      run: |
-        git clone https://github.com/siryle1213/luci-app-fileassistant openwrt/package/luci-app-fileassistant
-#        git clone https://github.com/openwrt/luci openwrt/package/tmp
-#        mv openwrt/package/tmp/applications/luci-app-nut openwrt/package
-
     - name: 升级 feeds
       run: |
         cd openwrt

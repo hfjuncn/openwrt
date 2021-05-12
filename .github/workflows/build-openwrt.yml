@@ -35,6 +35,12 @@ jobs:
         REPO_BRANCH: master
       run: git clone --depth 1 $REPO_URL -b $REPO_BRANCH openwrt
 
+    - name: 克隆增强功能源代码
+      run: |
+        git clone https://github.com/awesome-openwrt/luci-app-fileassistant openwrt/package/luci-app-fileassistant
+#        git clone https://github.com/openwrt/luci openwrt/package/tmp
+#        mv openwrt/package/tmp/applications/luci-app-nut openwrt/package
+
     - name: 升级 feeds
       run: |
         cd openwrt
@@ -143,15 +149,15 @@ jobs:
         CONFIG_PACKAGE_luci-app-adbyby-plus=y
         CONFIG_PACKAGE_luci-app-advanced-reboot=y
         CONFIG_PACKAGE_luci-app-ssr-plus=y
+        CONFIG_PACKAGE_luci-app-fileassistant=y
         CONFIG_PACKAGE_luci-app-sqm=y
         CONFIG_PACKAGE_luci-app-ddns=y
         CONFIG_PACKAGE_luci-app-samba=y
         CONFIG_PACKAGE_luci-app-upnp=y
         CONFIG_PACKAGE_luci-app-v2ray-server=y
         CONFIG_PACKAGE_luci-app-pptp-server=y
-        CONFIG_PACKAGE_luci-app-ipsec-vpnd=y
         CONFIG_PACKAGE_luci-app-softethervpn=y
-        CONFIG_PACKAGE_luci-app-zerotier=y
+        CONFIG_PACKAGE_luci-app-vlmcsd=y
         EOF
         
         # LuCI主题:
@@ -187,6 +193,7 @@ jobs:
         # # CONFIG_VMDK_IMAGES is not set
         # CONFIG_PACKAGE_coremark is not set
         # CONFIG_PACKAGE_luci-app-docker is not set
+        # CONFIG_PACKAGE_luci-app-zerotier is not set
         # CONFIG_PACKAGE_luci-app-wifischedule is not set
         # CONFIG_PACKAGE_luci-app-vsftpd is not set
         # CONFIG_PACKAGE_luci-app-usb-printer is not set
@@ -199,6 +206,7 @@ jobs:
         # CONFIG_PACKAGE_luci-app-accesscontrol is not set
         # CONFIG_PACKAGE_luci-app-autoreboot is not set
         # CONFIG_PACKAGE_autosamba is not set
+        # CONFIG_PACKAGE_luci-app-unblockmusic is not set
         # CONFIG_UnblockNeteaseMusic_Go is not set
         # CONFIG_UnblockNeteaseMusic_NodeJS is not set
         # CONFIG_PACKAGE_luci-app-ramfree is not set
@@ -206,6 +214,7 @@ jobs:
         # CONFIG_PACKAGE_luci-app-airplay2 is not set
         # CONFIG_PACKAGE_luci-app-amule is not set
         # CONFIG_PACKAGE_luci-app-music-remote-center is not set
+        # CONFIG_PACKAGE_luci-app-ipsec-vpnd is not set
         EOF
         sed -i 's/^[ \t]*//g' ./.config
         echo '修改网关地址'

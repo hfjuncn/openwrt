@@ -2,7 +2,7 @@ name: 云编译
 
 on: 
 #  schedule:
-#    - cron: 0 22 * * 1
+#    - cron: 0 22 2 * *
   watch:
     types: started
 
@@ -19,16 +19,10 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi `docker images -q`
-        sudo rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d
-        sudo -E apt-get -y purge azure-cli ghc* zulu* hhvm llvm* firefox google* dotnet* powershell openjdk* mysql* php*
-        sudo -E apt-get update
-        sudo -E apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch python3 unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf
+        sudo -E apt-get -yqq update
+        sudo -E apt-get -yqq install ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib g++-multilib git git-core gperf haveged help2man intltool lib32gcc1 libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncurses5-dev libreadline-dev libssl-dev libtool libz-dev lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pip python3-ply python-docutils qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
         sudo -E apt-get -y autoremove --purge
         sudo -E apt-get clean
-
-        df -h
-
     - name: 克隆源代码
       env: 
         REPO_URL: https://github.com/coolsnowwolf/lede
@@ -37,7 +31,17 @@ jobs:
 
     - name: 克隆增强功能源代码
       run: |
-        git clone https://github.com/awesome-openwrt/luci-app-fileassistant openwrt/package/luci-app-fileassistant
+        git clone https://github.com/shidahuilang/luci-app-fileassistant openwrt/package/luci-app-fileassistant
+        git clone -b lede https://github.com/pymumu/luci-app-smartdns.git openwrt/package/luci-app-smartdns
+        
+        
+        
+        git clone https://github.com/lisaac/luci-app-diskman openwrt/package/tmp/luci-app-diskman
+        mv openwrt/package/tmp/luci-app-diskman/applications/luci-app-diskman openwrt/package
+        
+        git clone https://github.com/vernesong/OpenClash.git openwrt/package/tmp/luci-app-openclash
+        mv openwrt/package/tmp/luci-app-openclash/luci-app-openclash openwrt/package
+#        git clone -b 18.06 https://github.com/riverscn/luci-app-omcproxy openwrt/package/luci-app-omcproxy
 #        git clone https://github.com/openwrt/luci openwrt/package/tmp
 #        mv openwrt/package/tmp/applications/luci-app-nut openwrt/package
 
@@ -45,29 +49,22 @@ jobs:
       run: |
         cd openwrt
         sed -i '$a\src-git helloworld https://github.com/fw876/helloworld' feeds.conf.default
-        ./scripts/feeds clean
         ./scripts/feeds update -a
         ./scripts/feeds install -a
-
     - name: 增加固件编译日期
       run: |
         cd openwrt
         echo '增加固件编译日期'
+        #sed -i 's/5.10/5.4/g' target/linux/x86/Makefile
         sed -i '/exit/d' package/lean/default-settings/files/zzz-default-settings
-        cat << 'EOF' >> package/lean/default-settings/files/zzz-default-settings
-        date=$(date +"%y.%-m.%-d")
-        sed -i "s/\(DISTRIB_REVISION='.*\)'/\1\($date\)'/" /etc/openwrt_release
-        
-        exit 0
-        EOF
-
+        date=$(date -d "+8 hour" +"%y.%-m.%-d")
+        echo -e "sed -i \"s/\(DISTRIB_REVISION='.*\)'/\\\1 Built by toy ($date)'/\" /etc/openwrt_release\n\nexit 0" >> package/lean/default-settings/files/zzz-default-settings
     - name: 导入自定义配置
       run: |
         [ -e files ] && mv files openwrt/files
         cd openwrt
         rm -f ./.config*
         touch ./.config
-
         #
         # ========================固件定制部分========================
         # 
@@ -103,20 +100,30 @@ jobs:
         CONFIG_TARGET_x86_64_Generic=y
         EOF
         
+        # 虚拟机:
+        # CONFIG_PACKAGE_open-vm-tools=y
+        cat >> .config <<EOF
+        CONFIG_PACKAGE_qemu-ga=y
+        EOF
+       
         # 设置固件大小:
         cat >> .config <<EOF
-        CONFIG_TARGET_KERNEL_PARTSIZE=32
-        CONFIG_TARGET_ROOTFS_PARTSIZE=128
+        CONFIG_TARGET_KERNEL_PARTSIZE=256
+        CONFIG_TARGET_ROOTFS_PARTSIZE=768
         EOF
         
         # 固件压缩:
-        # cat >> .config <<EOF
-        # CONFIG_TARGET_IMAGES_GZIP=y
-        # EOF
-
+        cat >> .config <<EOF
+        CONFIG_TARGET_IMAGES_GZIP=y
+        EOF
         # 编译UEFI固件:
+        cat >> .config <<EOF
+        CONFIG_GRUB_EFI_IMAGES=y
+        EOF
+        
+        # 编译传统固件:
         # cat >> .config <<EOF
-        # CONFIG_EFI_IMAGES=y
+        # CONFIG_GRUB_IMAGES=y
         # EOF
         
         # IPv6支持:
@@ -218,9 +225,8 @@ jobs:
         EOF
         sed -i 's/^[ \t]*//g' ./.config
         echo '修改网关地址'
-        sed -i 's/192.168.1.1/192.168.9.1/g' package/base-files/files/bin/config_generate
+        sed -i 's/192.168.1.1/92.168.9.1/g' package/base-files/files/bin/config_generate
         make defconfig
-
 #    - name: SSH 连接
 #      uses: tanst/debugger-action@master
 
@@ -229,26 +235,38 @@ jobs:
         cd openwrt && make download -j8
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-
     - name: 编译
       run: |
         cd openwrt
         echo -e "$(nproc) thread build."
-        make -j$(nproc) || make -j1 V=s
-
-    - name: 清理不必要的文件
+        make -j$(nproc) V=s
+    - name: 打包文件
       run: |
         cd openwrt
+        echo "CompileDate=$(date -d "+8 hour" +%Y%m%d-%H%M%S)"  >> $GITHUB_ENV
         rm -rf ./artifact/
-        mkdir -p ./artifact/
-        find ./bin/targets/ -name "*combined*img*" | xargs -i mv -f {} ./artifact/
-        find ./bin/targets/ -name "*sysupgrade*bin*" | xargs -i mv -f {} ./artifact/
-        echo "FILENAME=$(echo "OpenWrt-firmware-x86-`date -d "+8 hour" +%Y%m%d-%H%M%S`")"  >> $GITHUB_ENV
-        mv -f ./.config ./artifact/ && mv -f ./bin/packages/ ./artifact/
-        
-    - name: 上传固件.
-      uses: actions/upload-artifact@master
+        mkdir -p ./artifact/firmware
+        mkdir -p ./artifact/package
+        mkdir -p ./artifact/buildinfo
+        rm -rf $(find ./bin/targets/ -type d -name "packages")
+        cp -rf $(find ./bin/targets/ -type f) ./artifact/firmware/
+        cp -rf $(find ./bin/packages/ -type f -name "*.ipk") ./artifact/package/
+        mv -f ./.config ./artifact/buildinfo/
+        cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
+    - name: 上传固件信息
+      uses: actions/upload-artifact@v2
       with:
-        name: ${{ env.FILENAME }}
-        path: ./openwrt/artifact/
+        name: OpenWrt_buildinfo_${{ env.CompileDate }}
+        path: ./openwrt/artifact/buildinfo/
 
+    - name: 上传 package
+      uses: actions/upload-artifact@v2
+      with:
+        name: OpenWrt_package_${{ env.CompileDate }}
+        path: ./openwrt/artifact/package/
+
+    - name: 上传固件
+      uses: actions/upload-artifact@v2
+      with:
+        name: OpenWrt_firmware_${{ env.CompileDate }}
+        path: ./openwrt/artifact/firmware/
